@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  nginx:
+    image: nikitamishagin/nginxproxy
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: rollback
+        order: start-first
+        max_failure_ratio: 0
+      restart_policy:
+        condition: on-failure
+    networks:
+      - proxy
+
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    volumes:
+      - certs:/etc/nginx/certs
+      - acme:/etc/acme.sh
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: rollback
+        order: start-first
+        max_failure_ratio: 0
+      restart_policy:
+        condition: on-failure
+    networks:
+      - proxy
+    depends_on:
+      - nginx
+
+volumes:
+  certs:
+  acme:
+  vhost.d:
+  html:
+
+networks:
+  proxy:
+    driver: overlay
