@@ -28,6 +28,8 @@ services:
 
   letsencrypt:
     image: nginxproxy/acme-companion
+    environment:
+      - DEFAULT_EMAIL=nikitamishagin@gmail.com
     volumes:
       - certs:/etc/nginx/certs
       - acme:/etc/acme.sh
@@ -46,8 +48,6 @@ services:
         condition: on-failure
     networks:
       - proxy
-    depends_on:
-      - nginx
 
 volumes:
   certs:
