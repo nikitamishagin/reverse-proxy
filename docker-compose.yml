@@ -1,16 +1,17 @@
 version: '3.9'
 
 services:
-  nginx:
+  nginxproxy:
     image: nikitamishagin/nginxproxy
     ports:
       - 80:80
       - 443:443
     labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true
     volumes:
       - certs:/etc/nginx/certs:ro
       - vhost.d:/etc/nginx/vhost.d
+      - conf:/etc/nginx/conf.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
     deploy:
@@ -27,15 +28,19 @@ services:
       - proxy
 
   letsencrypt:
-    image: nginxproxy/acme-companion
+    image: nikitamishagin/acme-companion
     environment:
       - DEFAULT_EMAIL=nikitamishagin@gmail.com
+### For troubleshooting
+#      - ACME_CA_URI=https://acme-staging-v02.api.letsencrypt.org/directory
+#      - DEBUG=1
     volumes:
       - certs:/etc/nginx/certs
-      - acme:/etc/acme.sh
       - vhost.d:/etc/nginx/vhost.d
+      - conf:/etc/nginx/conf.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme:/etc/acme.sh
     deploy:
       replicas: 1
       update_config:
@@ -51,10 +56,12 @@ services:
 
 volumes:
   certs:
-  acme:
   vhost.d:
+  conf:
   html:
+  acme:
 
 networks:
   proxy:
     driver: overlay
+    attachable: true

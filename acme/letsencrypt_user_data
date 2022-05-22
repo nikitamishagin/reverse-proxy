@@ -1,0 +1,5 @@
+LETSENCRYPT_STANDALONE_CERTS=('nextcloud' 'portfolio' 'labstand' 'jenkins')
+LETSENCRYPT_nextcloud_HOST=('nextcloud.mishagin.site')
+LETSENCRYPT_portfolio_HOST=('portfolio.mishagin.site')
+LETSENCRYPT_labstand_HOST=('labstand.mishagin.site')
+LETSENCRYPT_jenkins_HOST=('jenkins.mishagin.site')
